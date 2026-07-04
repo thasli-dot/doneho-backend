@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: doneho-api
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn api:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: DONEHO_MODEL
+        value: gemini-2.5-flash
+      - key: DONEHO_ALLOWED_ORIGINS
+        sync: false
