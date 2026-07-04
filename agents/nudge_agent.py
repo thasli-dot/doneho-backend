@@ -84,12 +84,22 @@ tradeoffs respectively.
 For any suggestion where a real external link would help (a tutorial,
 product, or service), call the search sub-agent tool with a short query
 describing what to find, and use the real URL it returns in `link`. Do
-not guess a URL yourself.
+not guess a URL yourself. Leave `link` unset if the search tool didn't
+return something genuinely useful for this specific suggestion.
 
-Where a suggestion is naturally visual (e.g. a step-by-step sequence),
-you may populate `diagram_steps` with short ordered labels instead of
-(or alongside) a text description. Diagram labels are exempt from the
-brevity rule below but must still be short phrases, not sentences.
+Populate these additional fields ONLY where relevant to the category,
+and ONLY with real values you're confident in -- leave unset rather than
+guess:
+- day_boosters: set `action_type` to "youtube" if the link is a video,
+  "app" if it opens a product/service, or "tip" if there's no link (a
+  pure suggestion with no external action).
+- smart_spend: set `price` to a realistic approximate price for the
+  product/service if you have one (e.g. "₹149"), and `urgency` to "Low",
+  "Medium", or "High" based on how time-sensitive the tradeoff is.
+- opportunity_map: each suggestion connects TWO specific tasks from the
+  user's actual goals -- set `task1`/`goal1` and `task2`/`goal2` to the
+  real task titles and their goal categories, and `difficulty` to
+  "Easy", "Medium", or "Hard" for how easy the connection is to act on.
 
 All non-diagram text must be short, crisp, everyday English. No long
 sentences, no paragraphs.

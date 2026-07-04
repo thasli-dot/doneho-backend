@@ -121,12 +121,28 @@ class SuggestionItem(BaseModel):
     Shared shape for Opportunity Map / Day Boosters / Smart Spend entries.
     Section 12.2: any numeric claim requires a one-line justification —
     enforced here as a required field, not optional prose.
+
+    `link` and `diagram_steps` already existed. The fields below them are
+    new, added so the frontend can show category-specific detail
+    (a price and urgency for Smart Spend, a task pairing and difficulty
+    for Opportunity Map, an action type for Day Boosters) that the mock
+    frontend previously invented on its own. Optional and populated only
+    where relevant -- never fabricated if the agent has no real value.
     """
     title: str
     description: str  # short, crisp (Section 6 brevity rule)
     technique: str     # which of the 15 techniques (Section 10) this uses
     time_saved_minutes: Optional[int] = None
     justification: Optional[str] = None  # required if time_saved_minutes is set
+
+    action_type: Optional[str] = None  # Day Boosters: "youtube" | "app" | "tip"
+    price: Optional[str] = None  # Smart Spend: e.g. "₹149" -- only if a real product was found
+    urgency: Optional[str] = None  # Smart Spend: "Low" | "Medium" | "High"
+    difficulty: Optional[str] = None  # Opportunity Map: "Easy" | "Medium" | "Hard"
+    task1: Optional[str] = None  # Opportunity Map: first task in the pairing
+    goal1: Optional[str] = None  # Opportunity Map: goal category of task1
+    task2: Optional[str] = None  # Opportunity Map: second task in the pairing
+    goal2: Optional[str] = None  # Opportunity Map: goal category of task2
     link: Optional[str] = None            # real link only, from google_search
     diagram_steps: Optional[List[DiagramStep]] = None  # visual mode, optional
 
