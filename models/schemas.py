@@ -290,3 +290,15 @@ class AetherTipOutput(BaseModel):
     """
     tip: str  # short, crisp, everyday English — same brevity rule as everywhere else
     used_location: bool = False
+
+
+class AetherChatOutput(BaseModel):
+    """
+    Frontend-driven, free-form conversational turn with Aether — distinct
+    from the proactive, unprompted AetherTipOutput above. The user asks
+    something in their own words; Aether answers grounded in this
+    session's real state (goals, blueprint, LifeLoad, recent disruptions).
+    Same hard rules as every other user-facing message: never mention
+    "reserve"/"buffer"/any hidden-capacity number, no guilt language.
+    """
+    reply: str

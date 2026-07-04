@@ -15,7 +15,7 @@ from models.schemas import (
     Profile, Goal, Task, Blueprint, ExecutionContract, DisruptionLog,
     DisruptionDirection, GoalCategory, AbsorptionOutcome, RecalibrationProposal,
     RecoveryStep, DisruptionCostEstimate, WeeklyPerformance, AetherTipOutput,
-    DailyCheckIn,
+    AetherChatOutput, DailyCheckIn,
 )
 from core.shared_state import SharedExecutionState
 from core.event_bus import (
@@ -36,6 +36,7 @@ from agents.blueprint_agent import run_blueprint
 from agents.nudge_agent import run_nudge, run_gain_suggestions
 from agents.recalibration_agent import run_cost_estimation, run_hierarchy_decision
 from agents.aether_presence_agent import run_aether_tip
+from agents.aether_chat_agent import run_aether_chat
 from config import DISRUPTION_HISTORY_CONTEXT_LIMIT
 
 
@@ -48,6 +49,7 @@ class DoneHoOrchestrator:
         self.day_output_engine = DayOutputEngine()
         self.recovery_applier = RecoveryApplier()
         self._last_nudge_output = None
+        self._chat_history: list[dict] = []
         self._register_subscriptions()
 
     def start_new_week(self) -> None:
@@ -263,6 +265,31 @@ class DoneHoOrchestrator:
             disruptions_this_week=disruptions_this_week,
             location=self.state.profile.location,
         )
+
+    def chat_with_aether(self, user_message: str) -> AetherChatOutput:
+        """Reactive counterpart to request_aether_tip() -- answers a
+        free-form message from the frontend's Aether chat panel, grounded
+        in this session's real state. Keeps a short rolling history
+        (this orchestrator instance's own attribute, not part of
+        SharedExecutionState -- it's UI conversational context, not a
+        domain field any agent reasons over elsewhere) so replies stay
+        coherent across a few turns without unbounded growth."""
+        disruptions_this_week = len([
+            d for d in self.state.disruption_log
+            if d.direction == DisruptionDirection.LOSS
+        ])
+        result = run_aether_chat(
+            user_message=user_message,
+            goals=self.state.goals,
+            blueprint=self.state.blueprint,
+            lifeload=self.state.effective_lifeload,
+            disruptions_this_week=disruptions_this_week,
+            recent_history=self._chat_history,
+        )
+        self._chat_history.append({"role": "user", "content": user_message})
+        self._chat_history.append({"role": "aether", "content": result.reply})
+        self._chat_history = self._chat_history[-12:]
+        return result
 
     # ------------------------------------------------------------------
     # Entry 2 — Day Output

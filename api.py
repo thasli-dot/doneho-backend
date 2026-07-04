@@ -103,6 +103,11 @@ class SessionOnlyRequest(BaseModel):
     session_id: str
 
 
+class AetherChatRequest(BaseModel):
+    session_id: str
+    message: str
+
+
 class DisruptionRequest(BaseModel):
     session_id: str
     description: str
@@ -443,6 +448,19 @@ def aether_tip(session_id: str):
         result = orchestrator.request_aether_tip()
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"Aether Presence Agent call failed: {e}")
+    return result.model_dump()
+
+
+@app.post("/aether-chat")
+def aether_chat(req: AetherChatRequest):
+    """Reactive counterpart to GET /aether-tip -- a free-form chat turn
+    from the frontend's Aether chat panel, grounded in this session's
+    real state (never a canned reply, never invents numbers)."""
+    orchestrator = get_orchestrator(req.session_id)
+    try:
+        result = orchestrator.chat_with_aether(req.message)
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Aether Chat Agent call failed: {e}")
     return result.model_dump()
 
 
