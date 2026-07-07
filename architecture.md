@@ -1,10 +1,8 @@
-# DoneHo — As-Built Architecture
-
-**Purpose of this document:** This was originally a pre-build spec ("Build Brief") written before any code existed. This version replaces it with what was actually shipped, verified directly against the current codebase — not what was planned. Where the build diverged from the original spec (in every case, by growing beyond it), that's called out explicitly.
+# DoneHo — Architecture
 
 ---
 
-## 1. Product Overview 
+## 1. Product Overview
 
 DoneHo is not a generic to-do list or scheduler. Two ideas anchor it:
 
@@ -20,9 +18,9 @@ Both principles held all the way through the build. Verified: no engine file imp
 - **Frontend:** Lovable-built React + TypeScript on TanStack Start, calling the real backend via server functions in `src/lib/doneho-api.functions.ts`.
 - **Architecture pattern:** Event-driven, exactly as specified — `EventBus` + `SharedExecutionState`, agents never call each other directly.
 
-## 3. Core Architecture — six agents, not four
+## 3. Core Architecture — Six Agents
 
-The original spec scoped **four** agents. Two more were added as the build matured — both real, both load-bearing, neither a late patch:
+Six agents, each with one narrow, auditable job:
 
 #
 Agent
@@ -66,7 +64,7 @@ Two additional **AgentTools** (not independently orchestrated — invoked *by* t
 
 **Every one of these ten `Agent()` instances uses a real `output_schema`** (Pydantic model), confirmed directly in code — none reasons in free text without a parseable contract.
 
-### 3.1 Deterministic Engine — unchanged from spec, fully verified
+### 3.1 Deterministic Engine — fully verified
 
 - `CapacityEngine` — Weekly Capacity
 - `ReviewEngine` — earned Planning Reliability Factor
@@ -140,7 +138,7 @@ Proactive Aether line
 
 `/aether-chat`
 POST
-Reactive Aether chat — **added post-launch, not in original spec**
+Reactive Aether chat
 
 `/week/start`
 POST
@@ -156,7 +154,7 @@ Liveness check
 
 ## 5. Frontend Wiring — exactly what's real today, no rounding up
 
-This section didn't exist in the original spec, because the frontend didn't exist yet. Documenting it precisely matters more than any other section here, since this is the part most likely to be quietly overclaimed.
+Precision here matters more than in any other section — this is the part most likely to be quietly overclaimed.
 
 **Wired to the real backend, verified in code:**
 
@@ -173,7 +171,7 @@ This section didn't exist in the original spec, because the frontend didn't exis
 - The small proactive "Aether insight" line shown at the top of several screens (`getAetherInsight`) — distinct from the Dashboard's main chat
 - The Life Load Trend / Current Focus / Weekly Snapshot cards — explicitly tagged `MOCK` in the UI, since they need multi-week history that doesn't exist yet on a fresh account
 
-### 5.1 Bugs found and fixed post-launch, during real end-to-end testing
+### 5.1 Bugs Found and Fixed During Real End-to-End Testing
 
 - **Disruption direction casing.** Backend's `DisruptionDirection` enum only accepts lowercase `"loss"`/`"gain"`. The frontend was sending uppercase `"LOSS"`, causing every disruption report to fail with `422 Unprocessable Content`. Fixed in both the API client and the call site.
 - **Session-unaware localStorage restore.** The "return to Dashboard automatically" convenience feature saved onboarding inputs (name, goals, sliders) to the browser but never saved the actual `session_id` or real Blueprint data. A returning visit would show old goal labels with a dead session underneath — any real action would fail. Fixed: the restore now saves the real session state, and verifies with the backend (`GET /state`) that the session is still alive before trusting it; if the backend says it's gone, it clears the stale copy and returns to onboarding instead of showing a broken Dashboard.
@@ -185,15 +183,15 @@ The Pass 2 hours-collection flow (caregiving/planned-event/other-constraint hour
 
 ## 6. Data Model — unchanged, verified against `models/schemas.py`
 
-26 Pydantic schema classes now exist (spec described the shape; this is the confirmed final set), including additions made after the original spec: `AetherChatOutput`, and `SuggestionItem`'s enriched fields (`link`, `price`, `urgency`, `difficulty`, `task1`/`goal1`/`task2`/`goal2`, `action_type`) — added specifically so the Nudge Agent's real search-grounded output could reach the UI instead of being silently dropped.
+26 Pydantic schema classes, including `AetherChatOutput`, and `SuggestionItem`'s enriched fields (`link`, `price`, `urgency`, `difficulty`, `task1`/`goal1`/`task2`/`goal2`, `action_type`) — added specifically so the Nudge Agent's real search-grounded output could reach the UI instead of being silently dropped.
 
 ## 7. Guardrails — verified present in `nudge_agent.py` and `recalibration_agent.py` instructions
 
-All of Section 12's original rules are present verbatim in the live agent instructions: no medical/financial/legal specifics, no reduced child supervision, no guilt-based language, every quantified claim requires a one-line justification, links only from real search results.
+These guardrails are present verbatim in the live agent instructions: no medical/financial/legal specifics, no reduced child supervision, no guilt-based language, every quantified claim requires a one-line justification, links only from real search results.
 
 ## 8. What's Explicitly Still Out of Scope
 
-Unchanged from the original spec — neither was attempted, both remain real long-term direction:
+Both remain real long-term direction, deliberately not attempted yet:
 
 - **Cross-user, cross-cohort pattern learning** — would need a real shared database, privacy-conscious aggregation, and opt-in consent; a multi-month effort, not a feature add
 - **Autonomous booking/purchasing** — DoneHo suggests and links; the user completes the action
