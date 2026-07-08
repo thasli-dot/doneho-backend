@@ -26,14 +26,20 @@ Use the repo instead — this is explicitly permitted per the competition rules,
 ```
 git clone https://github.com/thasli-dot/doneho-backend.git
 cd doneho-backend
-python3 -m venv venv
+python -m venv venv
 source venv/bin/activate          # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 cp .env.example .env              # add your own GOOGLE_API_KEY
-python3 main.py                   # runs a full, real, end-to-end demo
+python main.py                   # runs a full, real, end-to-end demo
 ```
 
 **What `main.py` proves, in order:** goal clarification → real Blueprint with concrete milestones → a disruption reported and calmly absorbed, no guilt language → "Life Happened" triggered → a second, similar disruption showing real per-user pattern learning. No mock data — the same backend the live app calls.
+
+**To check the agents are actually correct, not just running:**
+```bash
+python evals/run_evals.py
+```
+This checks real agent output against concrete pass/fail criteria — no generic milestone titles, sane disruption cost estimates, every numeric claim paired with a justification. `main.py` shows the agents ran; this shows whether they ran *correctly*.
 
 ## The Problem
 
@@ -54,7 +60,7 @@ Over five years running an EdTech venture for India's toughest exam, one pattern
 - **Six ADK Agents** — real reasoning: Clarification, Blueprint, Nudge, Recalibration, Aether Presence, Aether Chat.
 - **18 live endpoints**, deployed on Render, called by the real frontend — not a mockup.
 
-Full technical depth — every endpoint, every schema field, exactly what's wired vs. simulated — lives in **[ARCHITECTURE.md](./ARCHITECTURE.md), not repeated here.
+Full technical depth — every endpoint, every schema field, exactly what's wired vs. simulated — lives in **[ARCHITECTURE.md](./ARCHITECTURE.md)**, not repeated here.
 
 ## The One Rule That Holds Everything Together
 

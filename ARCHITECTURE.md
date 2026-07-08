@@ -189,7 +189,17 @@ The Pass 2 hours-collection flow (caregiving/planned-event/other-constraint hour
 
 These guardrails are present verbatim in the live agent instructions: no medical/financial/legal specifics, no reduced child supervision, no guilt-based language, every quantified claim requires a one-line justification, links only from real search results.
 
-## 8. What's Explicitly Still Out of Scope
+## 8. Evals — Real Checks, Not Just Guardrail Prompts
+
+A lightweight eval harness lives in `evals/run_evals.py`. It calls the real agents directly (not a mock) and checks their output against concrete criteria already stated as rules elsewhere in this document:
+
+- **Blueprint Agent** — generated milestone titles are checked against the "no generic phase labels" rule (Section 3), and against simply repeating the task title back unchanged
+- **Recalibration Agent** — Stage 0 cost estimates are checked for being positive, plausible (under 60 hours for a single event), and accompanied by a reasoning note
+- **Nudge Agent** — every suggestion carrying a `time_saved_minutes` number is checked for having the required `justification` (Section 7)
+
+This is intentionally small — three checks, not a full test suite — but each one runs against real Gemini output, not a fixture, and each one is a rule this document already claims to enforce, just verified in code instead of only asserted in prose. Run with `python3 evals/run_evals.py`.
+
+## 9. What's Explicitly Still Out of Scope
 
 Both remain real long-term direction, deliberately not attempted yet:
 
